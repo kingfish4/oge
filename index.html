@@ -1,0 +1,1650 @@
+<!DOCTYPE html>
+<html lang="ru" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>ОГЭ Математика 2025/2026 — Навигатор баллов и ловушек ФИПИ</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      --bg-base: #090B0E;
+      --bg-surface: #11141B;
+      --bg-surface-elevated: #161B24;
+      --border-subtle: rgba(255, 255, 255, 0.07);
+      --border-strong: rgba(255, 255, 255, 0.14);
+      --text-primary: #F3F4F6;
+      --text-secondary: #9CA3AF;
+      --text-tertiary: #6B7280;
+      --signal-green: #10B981;
+      --signal-amber: #F59E0B;
+      --signal-red: #EF4444;
+      --signal-blue: #3B82F6;
+      --signal-purple: #A855F7;
+    }
+
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-primary);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", sans-serif;
+      letter-spacing: -0.011em;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    .num-tabular {
+      font-variant-numeric: tabular-nums;
+      font-feature-settings: "tnum";
+      font-family: -apple-system, BlinkMacSystemFont, "SF Mono", "Roboto Mono", monospace;
+    }
+
+    /* Кастомный скроллбар */
+    ::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.12);
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.22);
+    }
+
+    /* Прецизионный чекбокс Apple style */
+    .apple-checkbox {
+      appearance: none;
+      width: 22px;
+      height: 22px;
+      border: 1.5px solid rgba(255, 255, 255, 0.25);
+      border-radius: 6px;
+      background-color: rgba(255, 255, 255, 0.04);
+      cursor: pointer;
+      display: inline-grid;
+      place-content: center;
+      transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+      flex-shrink: 0;
+      position: relative;
+    }
+    .apple-checkbox:hover {
+      border-color: rgba(255, 255, 255, 0.5);
+      background-color: rgba(255, 255, 255, 0.08);
+    }
+    .apple-checkbox:checked {
+      background-color: #2563EB;
+      border-color: #3B82F6;
+    }
+    .apple-checkbox:checked::after {
+      content: "";
+      width: 5px;
+      height: 10px;
+      border: solid white;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+      margin-top: -2px;
+    }
+
+    /* Карточки задач */
+    .task-item {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+    .task-item:hover {
+      background: var(--bg-surface-elevated);
+      border-color: var(--border-strong);
+    }
+    .task-item.is-selected {
+      background: #131823;
+      border-color: rgba(59, 130, 246, 0.35);
+    }
+    .task-item.is-selected.is-geom {
+      border-color: rgba(16, 185, 129, 0.35);
+    }
+
+    /* Аккордеон без дерганий */
+    .accordion-body {
+      display: grid;
+      grid-template-rows: 0fr;
+      transition: grid-template-rows 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .accordion-body.is-open {
+      grid-template-rows: 1fr;
+    }
+    .accordion-inner {
+      overflow: hidden;
+    }
+
+    /* Кнопки очков части 2 */
+    .point-selector-btn {
+      width: 28px;
+      height: 28px;
+      font-size: 13px;
+      font-weight: 500;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #9CA3AF;
+      transition: all 0.15s ease;
+    }
+    .point-selector-btn:hover {
+      color: #FFFFFF;
+      background: rgba(255, 255, 255, 0.08);
+    }
+    .point-selector-btn.is-active {
+      background: #2563EB;
+      color: #FFFFFF;
+      font-weight: 600;
+    }
+
+    /* Тактильная анимация для шлюза геометрии */
+    .safety-gate-pulse {
+      animation: gatePulse 2.8s infinite;
+    }
+    @keyframes gatePulse {
+      0%, 100% { border-color: rgba(245, 158, 11, 0.3); }
+      50% { border-color: rgba(245, 158, 11, 0.8); }
+    }
+  </style>
+</head>
+<body class="min-h-screen pb-28">
+
+  <div class="max-w-3xl mx-auto px-4 sm:px-6 pt-6 sm:pt-10">
+
+    <!-- Заголовок приложения: строгий, чистый, без дешевых плашек -->
+    <header class="mb-6">
+      <div class="flex items-baseline justify-between">
+        <div>
+          <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-500 font-mono">ФИПИ 2025/2026</span>
+          <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-white mt-0.5">ОГЭ Математика</h1>
+        </div>
+        <div class="text-right">
+          <span class="text-xs text-slate-400">Шкала перевода баллов</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Главный приборный блок телеметрии (Instrument Dial) -->
+    <section class="bg-[#11141B] border border-white/10 rounded-2xl p-5 mb-6 shadow-xl relative overflow-hidden">
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-5 items-center">
+        
+        <!-- Оценка за экзамен (Герой экрана: крупная цифра) -->
+        <div class="md:col-span-4 flex items-center md:flex-col md:items-start justify-between border-b md:border-b-0 md:border-r border-white/10 pb-4 md:pb-0 md:pr-6">
+          <div>
+            <span class="text-[11px] font-medium uppercase tracking-wider text-slate-400 block">Оценка за экзамен</span>
+            <div id="statGradeDigit" class="text-5xl sm:text-6xl font-black text-white leading-none mt-1 tracking-tight">4</div>
+          </div>
+          <div class="md:mt-3">
+            <span id="statGradeStatus" class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+              Хорошо
+            </span>
+          </div>
+        </div>
+
+        <!-- Центральные шкалы: Первичный балл и Геометрия -->
+        <div class="md:col-span-8 space-y-4">
+          
+          <!-- Первичный балл -->
+          <div>
+            <div class="flex justify-between items-baseline mb-1.5">
+              <span class="text-xs font-medium text-slate-300">Первичный балл</span>
+              <span id="statTotalScore" class="num-tabular text-sm font-semibold text-white">15 / 31</span>
+            </div>
+            <div class="w-full h-2 bg-white/5 rounded-full overflow-hidden p-0.5 border border-white/10">
+              <div id="statTotalBar" class="h-full rounded-full bg-blue-500 transition-all duration-300" style="width: 48%;"></div>
+            </div>
+            <div class="flex justify-between text-[10px] text-slate-500 mt-1 font-mono">
+              <span>0</span>
+              <span>8 (порог тройки)</span>
+              <span>15 (четверка)</span>
+              <span>22 (пятерка)</span>
+            </div>
+          </div>
+
+          <!-- Шлюз безопасности: Геометрия (Критическое правило) -->
+          <div id="geomGateBox" class="p-3 rounded-xl bg-white/[0.03] border border-white/10 transition-all">
+            <div class="flex justify-between items-baseline mb-1.5">
+              <div class="flex items-center gap-1.5">
+                <span class="text-xs font-medium text-slate-300">Баллы по геометрии</span>
+                <span id="geomGateBadge" class="text-[10px] px-1.5 py-0.5 rounded font-mono font-bold bg-emerald-950/80 text-emerald-300 border border-emerald-800/60">
+                  Порог пройден
+                </span>
+              </div>
+              <span id="statGeomScore" class="num-tabular text-sm font-semibold text-emerald-400">3 / 11</span>
+            </div>
+            <div class="w-full h-2 bg-white/5 rounded-full overflow-hidden p-0.5 border border-white/10">
+              <div id="statGeomBar" class="h-full rounded-full bg-emerald-500 transition-all duration-300" style="width: 27%;"></div>
+            </div>
+            <div class="flex justify-between text-[10px] text-slate-500 mt-1">
+              <span>0</span>
+              <span class="text-slate-400">Минимум 2 балла для получения любой положительной оценки</span>
+              <span>11</span>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Предупреждающая плашка при срабатывании ловушки геометрии -->
+      <div id="geomWarningBanner" class="hidden mt-4 pt-4 border-t border-amber-500/30 text-amber-300 text-xs flex items-start gap-2.5">
+        <svg class="w-4 h-4 mt-0.5 flex-shrink-0 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+        <div id="geomWarningText" class="leading-relaxed text-slate-300">
+          <!-- Заполняется динамически -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Пресеты стратегий (строгие кнопки-сегменты) -->
+    <div class="mb-5 flex flex-wrap items-center gap-1.5">
+      <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-500 font-mono mr-1">Стратегии:</span>
+      <div id="presetsList" class="flex flex-wrap gap-1.5">
+        <!-- Пресеты генерируются из JS -->
+      </div>
+    </div>
+
+    <!-- Вкладки категорий заданий и поиск -->
+    <div class="mb-4 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+      <div id="categoryTabs" class="flex items-center gap-1 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
+        <!-- Табы генерируются из JS -->
+      </div>
+
+      <!-- Поисковая строка -->
+      <div class="relative sm:w-60 flex-shrink-0">
+        <input 
+          type="text" 
+          id="taskSearchInput" 
+          placeholder="Поиск: квадрат, корень, №9..." 
+          class="w-full bg-[#11141B] border border-white/15 rounded-xl pl-3.5 pr-8 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 transition-all font-sans"
+        />
+        <button id="clearSearchBtn" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white text-xs w-4 h-4 rounded-full bg-white/10 flex items-center justify-center">✕</button>
+      </div>
+    </div>
+
+    <!-- Статус поиска -->
+    <div id="searchStatusInfo" class="hidden mb-3 text-xs text-blue-300 flex items-center justify-between bg-blue-950/30 px-3.5 py-1.5 rounded-lg border border-blue-900/40">
+      <span id="searchStatusText">Найдено заданий: 0</span>
+      <button id="resetSearchLink" class="text-blue-400 hover:text-blue-200 underline">Показать все</button>
+    </div>
+
+    <!-- Основной список заданий -->
+    <main id="tasksContainer" class="space-y-2">
+      <!-- Наполняется из JS -->
+    </main>
+
+  </div>
+
+  <!-- Плавающая панель снизу (минималистичная и тактильная) -->
+  <div class="fixed bottom-5 left-1/2 -translate-x-1/2 z-40">
+    <button 
+      id="quickTestBtn"
+      class="bg-[#161B24]/90 hover:bg-[#1E2430] text-white border border-white/15 px-5 py-2.5 rounded-full shadow-2xl backdrop-blur-xl flex items-center gap-2.5 text-xs font-semibold tracking-wide transition-all active:scale-95 group"
+    >
+      <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+      <span>Экспресс-тренировка</span>
+      <svg class="w-3.5 h-3.5 text-slate-400 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+      </svg>
+    </button>
+  </div>
+
+  <!-- Модальное окно быстрой проверки задачи -->
+  <div id="practiceModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4">
+    <div id="modalOverlay" class="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
+    
+    <div class="relative bg-[#11141B] border border-white/15 rounded-2xl max-w-lg w-full p-5 sm:p-6 shadow-2xl z-10 flex flex-col max-h-[90vh]">
+      
+      <!-- Шапка модалки -->
+      <div class="flex items-center justify-between pb-3 border-b border-white/10">
+        <div class="flex items-center gap-2.5">
+          <span id="modalTaskBadge" class="px-2 py-0.5 rounded font-mono text-xs font-semibold bg-white/10 text-slate-200">
+            №6
+          </span>
+          <h3 id="modalTaskTitle" class="text-sm sm:text-base font-semibold text-white truncate max-w-[240px] sm:max-w-xs">
+            Числа и вычисления
+          </h3>
+        </div>
+        <button id="modalClose" class="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center text-xs transition-all">
+          ✕
+        </button>
+      </div>
+
+      <!-- Тело вопроса -->
+      <div class="py-4 overflow-y-auto space-y-4">
+        <div>
+          <span class="text-[10px] font-mono font-semibold uppercase tracking-wider text-slate-500">Условие задания</span>
+          <p id="modalQuestionText" class="text-sm text-slate-100 font-medium mt-1 leading-relaxed bg-white/[0.03] p-3.5 rounded-xl border border-white/10">
+            Найдите значение выражения...
+          </p>
+        </div>
+
+        <!-- Форма ответа -->
+        <form id="modalPracticeForm" class="space-y-3">
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Ваш ответ (десятичная дробь или целое число):</label>
+            <div class="flex gap-2">
+              <input 
+                type="text" 
+                id="modalAnswerInput" 
+                placeholder="Например: 0.5 или 14" 
+                class="flex-1 bg-black/40 border border-white/15 rounded-xl px-3.5 py-2 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-blue-500 font-mono"
+                autocomplete="off"
+              />
+              <button 
+                type="submit" 
+                id="modalSubmitBtn"
+                class="bg-blue-600 hover:bg-blue-500 text-white font-medium px-4 py-2 rounded-xl text-xs transition-all active:scale-95 flex-shrink-0"
+              >
+                Проверить
+              </button>
+            </div>
+          </div>
+        </form>
+
+        <!-- Вердикт -->
+        <div id="modalResultBlock" class="hidden transition-all"></div>
+      </div>
+
+      <!-- Подвал -->
+      <div class="pt-3 border-t border-white/10 flex items-center justify-between text-xs text-slate-400">
+        <button id="modalPrevTask" class="hover:text-white px-2.5 py-1 rounded bg-white/5 hover:bg-white/10 transition-all font-mono">
+          ← Пред.
+        </button>
+        <button id="modalNextTask" class="hover:text-white px-2.5 py-1 rounded bg-white/5 hover:bg-white/10 transition-all font-mono">
+          След. →
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- База данных и скрипт приложения -->
+  <script>
+    const TASKS_DATA = [
+      {
+        id: 1,
+        num: 1,
+        title: "План и сопоставление объектов",
+        category: "practice",
+        categoryName: "Практика (1–5)",
+        points: 1,
+        isGeometry: false,
+        badge: "№01",
+        traps: [
+          "Невнимательное чтение: путают вход на участок и ворота, стороны света (север сверху, юг снизу).",
+          "Масштаб клеток: в условии часто указано, что 1 сторона клетки = 2 метра! Ученики часто считают за 1 м.",
+          "В бланк записывается только последовательность цифр без пробелов и знаков препинания."
+        ],
+        tips: [
+          "Сразу при чтении подписывайте цифры карандашом прямо на плане.",
+          "Сверяйте ориентацию: «слева от входа», «напротив гаража».",
+          "Проверьте, что в ответ выписаны цифры строго в порядке таблицы запроса."
+        ],
+        samplePractice: {
+          question: "На плане сторона клетки равна 2 м. Дом обозначен цифрой 3, сарай — 1, баня — 4, теплица — 2. Запишите в ответ последовательность цифр для объектов: Дом, Сарай, Теплица, Баня.",
+          answer: "3124",
+          explanation: "Сопоставляем по порядку запроса: Дом (3), Сарай (1), Теплица (2), Баня (4) -> 3124."
+        }
+      },
+      {
+        id: 2,
+        num: 2,
+        title: "Расчет упаковок плитки и материалов",
+        category: "practice",
+        categoryName: "Практика (1–5)",
+        points: 1,
+        isGeometry: false,
+        badge: "№02",
+        traps: [
+          "Размер плитки часто дается в сантиметрах (50х50 см), а клетки в метрах (2х2 м). Не переводят в единые единицы измерения.",
+          "Округление: количество упаковок ВСЕГДА округляется с избытком в большую сторону (даже 5.1 упаковок — это 6).",
+          "Забывают вычесть ширину калитки/ворот при расчете длины забора."
+        ],
+        tips: [
+          "В 1 квадратной клетке 2х2 м помещается ровно 16 плиток 0.5х0.5 м.",
+          "Формула упаковок: (Общая площадь / Площадь плитки) / Штук в пачке, с округлением вверх."
+        ],
+        samplePractice: {
+          question: "Тротуарная плитка продается упаковками по 8 шт. Размер плитки 1×1 м. Площадь дорожек 45 кв.м. Сколько упаковок нужно купить?",
+          answer: "6",
+          explanation: "45 / 8 = 5.625. Округляем вверх до целой упаковки: 6."
+        }
+      },
+      {
+        id: 3,
+        num: 3,
+        title: "Площадь объектов на плане",
+        category: "practice",
+        categoryName: "Практика (1–5)",
+        points: 1,
+        isGeometry: false,
+        badge: "№03",
+        traps: [
+          "Забывают умножить количество клеток на площадь ОДНОЙ клетки (при стороне 2 м площадь клетки равна 4 м², а не 2!).",
+          "Сложные фигуры: разбивайте Г-образные строения на простые прямоугольники."
+        ],
+        tips: [
+          "Сначала сосчитайте целые клетки внутри контура, затем умножайте на площадь 1 клетки.",
+          "Площадь клетки со стороной 2 м равна 4 кв.м."
+        ],
+        samplePractice: {
+          question: "Гараж на плане занимает 12 клеток. Сторона каждой клетки равна 2 м. Найдите площадь гаража в кв. метрах.",
+          answer: "48",
+          explanation: "Площадь 1 клетки = 2 * 2 = 4 м². Площадь гаража = 12 * 4 = 48 м²."
+        }
+      },
+      {
+        id: 4,
+        num: 4,
+        title: "Расстояние по теореме Пифагора на плане",
+        category: "practice",
+        categoryName: "Практика (1–5)",
+        points: 1,
+        isGeometry: false,
+        badge: "№04",
+        traps: [
+          "Расстояние ищется между БЛИЖАЙШИМИ точками объектов (или центрами, внимательно читайте вопрос).",
+          "Забывают перевести катеты из клеток в метры перед вычислением гипотенузы."
+        ],
+        tips: [
+          "Достройте отрезок до прямоугольного треугольника по узлам сетки.",
+          "Пифагоровы тройки (3-4-5, 6-8-10, 5-12-13) встречаются в большинстве вариантов."
+        ],
+        samplePractice: {
+          question: "Катеты прямоугольного треугольника по сетке равны 3 клетки и 4 клетки. Сторона клетки 2 м. Найдите гипотенузу в метрах.",
+          answer: "10",
+          explanation: "Катеты в метрах: 6 м и 8 м. Гипотенуза: sqrt(36 + 64) = 10 м."
+        }
+      },
+      {
+        id: 5,
+        num: 5,
+        title: "Экономический расчет и окупаемость",
+        category: "practice",
+        categoryName: "Практика (1–5)",
+        points: 1,
+        isGeometry: false,
+        badge: "№05",
+        traps: [
+          "В вопросе часто спрашивают срок окупаемости (часы/месяцы), а ученики находят просто разницу в цене оборудования.",
+          "Не учитывают скрытые расходы (монтаж, доставку из примечания под таблицей)."
+        ],
+        tips: [
+          "Формула окупаемости: (Разница в начальных затратах) / (Экономия в единицу времени).",
+          "Аккуратно производите деление в столбик, перепроверяйте порядок нулей."
+        ],
+        samplePractice: {
+          question: "Установка газа стоит 45 000 руб., а электричества 20 000 руб. За час газ экономит 5 руб. Через сколько часов экономия компенсирует разницу?",
+          answer: "5000",
+          explanation: "Разница: 45000 - 20000 = 25000 руб. Срок: 25000 / 5 = 5000 ч."
+        }
+      },
+      {
+        id: 6,
+        num: 6,
+        title: "Числа и вычисления (дроби, степени)",
+        category: "algebra1",
+        categoryName: "Алгебра Ч.1 (6–14)",
+        points: 1,
+        isGeometry: false,
+        badge: "№06",
+        traps: [
+          "Потеря знака минус при раскрытии скобок или при отрицательном показателе степени.",
+          "Деление на обыкновенную дробь: забывают умножить на обратную (перевернутую) дробь.",
+          "Ответ в бланке ОГЭ допустим ТОЛЬКО в виде десятичной дроби (например, 0.75, но не 3/4)."
+        ],
+        tips: [
+          "Базовые переводы в десятичные: 1/4 = 0.25, 1/8 = 0.125, 1/5 = 0.2, 3/8 = 0.375.",
+          "Сокращайте числитель и знаменатель до перемножения."
+        ],
+        samplePractice: {
+          question: "Найдите значение выражения: 1/4 + 0.05",
+          answer: "0.3",
+          explanation: "1/4 = 0.25. 0.25 + 0.05 = 0.3."
+        }
+      },
+      {
+        id: 7,
+        num: 7,
+        title: "Числовая прямая и сравнение чисел",
+        category: "algebra1",
+        categoryName: "Алгебра Ч.1 (6–14)",
+        points: 1,
+        isGeometry: false,
+        badge: "№07",
+        traps: [
+          "Отрицательные числа: -7 лежит левее -3, но модуль больше.",
+          "Сравнение корней: забывают возвести целые границы в квадрат для точного позиционирования."
+        ],
+        tips: [
+          "Подставляйте конкретное удобное число вместо абстрактной буквы (если 0 < a < 1, возьмите a = 0.4).",
+          "Для быстрой оценки помните квадраты целых чисел от 10 до 20."
+        ],
+        samplePractice: {
+          question: "Между какими целыми числами заключено число √43? В ответ запишите меньшее из них.",
+          answer: "6",
+          explanation: "√36 < √43 < √49, то есть 6 < √43 < 7. Меньшее целое: 6."
+        }
+      },
+      {
+        id: 8,
+        num: 8,
+        title: "Алгебраические выражения (корни, степени, ФСУ)",
+        category: "algebra1",
+        categoryName: "Алгебра Ч.1 (6–14)",
+        points: 1,
+        isGeometry: false,
+        badge: "№08",
+        traps: [
+          "Степени: (a^3)^4 = a^12, но a^3 * a^4 = a^7.",
+          "Квадрат разности: (a - b)^2 = a^2 - 2ab + b^2. Типичная потеря удвоенного произведения 2ab."
+        ],
+        tips: [
+          "Сначала полностью упрощайте выражение в буквах, подставляя числа строго в конце.",
+          "Свойство корня: √(a * b) = √a * √b при a, b >= 0."
+        ],
+        samplePractice: {
+          question: "Найдите значение (a^7)^3 : a^18 при a = 4.",
+          answer: "64",
+          explanation: "a^(21 - 18) = a^3. 4^3 = 64."
+        }
+      },
+      {
+        id: 9,
+        num: 9,
+        title: "Уравнения (линейные, квадратные, дробные)",
+        category: "algebra1",
+        categoryName: "Алгебра Ч.1 (6–14)",
+        points: 1,
+        isGeometry: false,
+        badge: "№09",
+        traps: [
+          "Если уравнение имеет два корня, в бланке просят записать МЕНЬШИЙ или БОЛЬШИЙ корень.",
+          "Сокращение на x в виде x^2 = 7x приводит к потере корня x = 0."
+        ],
+        tips: [
+          "Дискриминант D = b^2 - 4ac. При четном b быстрее D1 = (b/2)^2 - ac.",
+          "Всегда делайте устную проверку найденных корней подстановкой в условие."
+        ],
+        samplePractice: {
+          question: "Решите уравнение x^2 - 9 = 0. Если корней несколько, запишите больший из них.",
+          answer: "3",
+          explanation: "Корни x = -3 и x = 3. Больший: 3."
+        }
+      },
+      {
+        id: 10,
+        num: 10,
+        title: "Классическая вероятность",
+        category: "algebra1",
+        categoryName: "Алгебра Ч.1 (6–14)",
+        points: 1,
+        isGeometry: false,
+        badge: "№10",
+        traps: [
+          "Запись вероятности процентами или простой дробью: допустима ТОЛЬКО десятичная дробь.",
+          "Вопрос о противоположном событии: находят вероятность брака вместо вероятности годной детали."
+        ],
+        tips: [
+          "P = m / n (благоприятные исходы разделить на общее количество исходов).",
+          "Вероятность противоположного события: P(не A) = 1 - P(A)."
+        ],
+        samplePractice: {
+          question: "В коробке 20 ручек: 14 синих, остальные красные. Найдите вероятность того, что случайно выбранная ручка будет красной.",
+          answer: "0.3",
+          explanation: "Красных ручек: 6. P = 6 / 20 = 0.3."
+        }
+      },
+      {
+        id: 11,
+        num: 11,
+        title: "Графики функций (параболы, гиперболы, прямые)",
+        category: "algebra1",
+        categoryName: "Алгебра Ч.1 (6–14)",
+        points: 1,
+        isGeometry: false,
+        badge: "№11",
+        traps: [
+          "Парабола: a отвечает за направление ветвей, c — за точку пересечения с осью Y, вершина x0 = -b/(2a).",
+          "Гипербола y = k/x: при k > 0 ветви в 1 и 3 четвертях, при k < 0 — во 2 и 4."
+        ],
+        tips: [
+          "Метод контрольной точки: возьмите x = 1 и определите знак или точное значение y по графику.",
+          "В бланк пишется последовательность цифр без пробелов."
+        ],
+        samplePractice: {
+          question: "У параболы ветви направлены вверх, и она пересекает ось Oy в точке (0; -3). Каковы знаки коэффициентов a и c? Если a>0 и c<0, введите 1, иначе 0.",
+          answer: "1",
+          explanation: "a > 0 (ветви вверх), c = -3 < 0. Утверждение верно (1)."
+        }
+      },
+      {
+        id: 12,
+        num: 12,
+        title: "Расчеты по физическим и прикладным формулам",
+        category: "algebra1",
+        categoryName: "Алгебра Ч.1 (6–14)",
+        points: 1,
+        isGeometry: false,
+        badge: "№12",
+        traps: [
+          "Ошибки при выражении переменной из знаменателя дроби или из-под корня.",
+          "Единицы измерения: метры и километры, градусы Цельсия и Фаренгейта."
+        ],
+        tips: [
+          "Подставляйте все известные числа сразу в формулу — решать числовое уравнение проще, чем буквенное.",
+          "Внимательно следите за знаками при переносе слагаемых."
+        ],
+        samplePractice: {
+          question: "Закон Ома: I = U / R. Найдите сопротивление R (в Омах), если напряжение U = 220 В, а сила тока I = 5 А.",
+          answer: "44",
+          explanation: "R = 220 / 5 = 44 Ом."
+        }
+      },
+      {
+        id: 13,
+        num: 13,
+        title: "Неравенства и системы неравенств",
+        category: "algebra1",
+        categoryName: "Алгебра Ч.1 (6–14)",
+        points: 1,
+        isGeometry: false,
+        badge: "№13",
+        traps: [
+          "Главная ошибка: при делении на отрицательное число знак неравенства переворачивается на противоположный.",
+          "Круглые скобки () для строгих знаков, квадратные [] для нестрогих."
+        ],
+        tips: [
+          "Для квадратных неравенств всегда находите нули функции и применяйте метод интервалов.",
+          "В системах решением является пересечение интервалов."
+        ],
+        samplePractice: {
+          question: "Решите неравенство: -3x < 12. Какой знак будет у x? Если x > -4, введите 1, если x < -4, введите 2.",
+          answer: "1",
+          explanation: "Делим на -3, знак меняется: x > -4 (ответ 1)."
+        }
+      },
+      {
+        id: 14,
+        num: 14,
+        title: "Прогрессии (арифметическая и геометрическая)",
+        category: "algebra1",
+        categoryName: "Алгебра Ч.1 (6–14)",
+        points: 1,
+        isGeometry: false,
+        badge: "№14",
+        traps: [
+          "Путают n-й член an и сумму первых n членов Sn.",
+          "Арифметическая — прибавление разности d, геометрическая — умножение на знаменатель q."
+        ],
+        tips: [
+          "Если количество шагов невелико (до 6-7 дней), надежнее выписать значения последовательно вручную.",
+          "Формула n-го члена: an = a1 + d * (n - 1)."
+        ],
+        samplePractice: {
+          question: "В первый день улитка проползла 3 м, а каждый следующий день на 2 м больше. Сколько метров она проползет на 5-й день?",
+          answer: "11",
+          explanation: "a5 = 3 + 4 * 2 = 11 м."
+        }
+      },
+
+      // --- ГЕОМЕТРИЯ ЧАСТЬ 1 (15-19) - КРИТИЧЕСКИЙ БЛОК ---
+      {
+        id: 15,
+        num: 15,
+        title: "Треугольники (углы, стороны, тригонометрия)",
+        category: "geometry1",
+        categoryName: "Геометрия Ч.1 (15–19)",
+        points: 1,
+        isGeometry: true,
+        badge: "№15",
+        traps: [
+          "Внешний угол равен сумме двух внутренних, не смежных с ним.",
+          "Путают sin (противолежащий/гипотенуза) и cos (прилежащий/гипотенуза)."
+        ],
+        tips: [
+          "Формулы синуса, косинуса и площади есть в выданных справочных материалах.",
+          "Сумма углов любого треугольника равна 180°."
+        ],
+        samplePractice: {
+          question: "В прямоугольном треугольнике гипотенуза равна 10, а прилежащий к углу катет равен 8. Найдите cos этого угла.",
+          answer: "0.8",
+          explanation: "cos = 8 / 10 = 0.8."
+        }
+      },
+      {
+        id: 16,
+        num: 16,
+        title: "Окружность, круг и их элементы",
+        category: "geometry1",
+        categoryName: "Геометрия Ч.1 (15–19)",
+        points: 1,
+        isGeometry: true,
+        badge: "№16",
+        traps: [
+          "Вписанный угол равен половине центрального угла, опирающегося на ту же дугу.",
+          "Радиус в точку касания перпендикулярен касательной (образуется угол 90°)."
+        ],
+        tips: [
+          "Ищите равнобедренные треугольники с боковыми сторонами, образованными радиусами r.",
+          "Вписанный угол, опирающийся на диаметр, всегда прямой (90°)."
+        ],
+        samplePractice: {
+          question: "Центральный угол равен 80°. Найдите величину вписанного угла, опирающегося на ту же дугу.",
+          answer: "40",
+          explanation: "80° / 2 = 40°."
+        }
+      },
+      {
+        id: 17,
+        num: 17,
+        title: "Четырехугольники и площади",
+        category: "geometry1",
+        categoryName: "Геометрия Ч.1 (15–19)",
+        points: 1,
+        isGeometry: true,
+        badge: "№17",
+        traps: [
+          "Площадь трапеции: S = ((a + b) / 2) * h. Забывают делить полусумму оснований на 2.",
+          "Площадь ромба: S = (d1 * d2) / 2 (половина произведения диагоналей)."
+        ],
+        tips: [
+          "Формулы площадей даны в справочнике ОГЭ.",
+          "Сумма углов, прилежащих к боковой стороне трапеции, равна 180°."
+        ],
+        samplePractice: {
+          question: "Основания трапеции равны 4 и 10, а высота равна 5. Найдите площадь трапеции.",
+          answer: "35",
+          explanation: "S = ((4 + 10) / 2) * 5 = 35."
+        }
+      },
+      {
+        id: 18,
+        num: 18,
+        title: "Фигуры на квадратной решетке",
+        category: "geometry1",
+        categoryName: "Геометрия Ч.1 (15–19)",
+        points: 1,
+        isGeometry: true,
+        badge: "№18",
+        traps: [
+          "Самый доступный балл по геометрии — обязательно брать.",
+          "Тангенс угла: противолежащий катет по сетке делить на прилежащий катет."
+        ],
+        tips: [
+          "Считайте узлы сетки строго по координатным линиям.",
+          "Средняя линия треугольника равна половине основания."
+        ],
+        samplePractice: {
+          question: "Основание треугольника на сетке равно 6 клеток, а высота, опущенная на него, равна 5 клеток. Найдите площадь треугольника.",
+          answer: "15",
+          explanation: "S = 0.5 * 6 * 5 = 15."
+        }
+      },
+      {
+        id: 19,
+        num: 19,
+        title: "Анализ геометрических высказываний",
+        category: "geometry1",
+        categoryName: "Геометрия Ч.1 (15–19)",
+        points: 1,
+        isGeometry: true,
+        badge: "№19",
+        traps: [
+          "Слова-ловушки: «всякий», «любой», «всегда». При наличии хотя бы одного контрпримера высказывание ложно.",
+          "Внимательно читайте условие: требуется указать ВЕРНЫЕ или НЕВЕРНЫЕ утверждения."
+        ],
+        tips: [
+          "Пытайтесь мысленно нарисовать предельный контрпример (сильно вытянутый ромб или тупоугольный треугольник).",
+          "В ответ пишется число без пробелов (например, 13)."
+        ],
+        samplePractice: {
+          question: "Какое из утверждений верно? 1) Через любую точку можно провести прямую. 2) Диагонали любого прямоугольника перпендикулярны.",
+          answer: "1",
+          explanation: "1 — аксиома. 2 — перпендикулярны только у ромба и квадрата."
+        }
+      },
+
+      // --- ЧАСТЬ 2: АЛГЕБРА (20-22) ПО 2 БАЛЛА ---
+      {
+        id: 20,
+        num: 20,
+        title: "Сложные уравнения, неравенства и системы",
+        category: "algebra2",
+        categoryName: "Алгебра Ч.2 (20–22)",
+        points: 2,
+        isGeometry: false,
+        badge: "№20",
+        traps: [
+          "ОДЗ: знаменатели дробей не равны нулю, подкоренные выражения >= 0.",
+          "При замене переменной t = x^2 забывают сделать обратную замену."
+        ],
+        tips: [
+          "При верном ходе решения, но вычислительной ошибке выставляется 1 балл из 2.",
+          "Обязательно выписывайте слово «Ответ:» в конце чистовика."
+        ],
+        samplePractice: {
+          question: "Решите уравнение x^4 = (2x - 3)^2. Сколько действительных корней имеет это уравнение?",
+          answer: "2",
+          explanation: "Разность квадратов дает корни x = 1 и x = -3 (всего 2 корня)."
+        }
+      },
+      {
+        id: 21,
+        num: 21,
+        title: "Текстовые задачи на движение, работу и сплавы",
+        category: "algebra2",
+        categoryName: "Алгебра Ч.2 (20–22)",
+        points: 2,
+        isGeometry: false,
+        badge: "№21",
+        traps: [
+          "Движение по течению: V = Vсоб + Vтеч; против течения: V = Vсоб - Vтеч.",
+          "Обязательно текстовое пояснение к переменным («Пусть x км/ч — скорость...»), без него снижают балл."
+        ],
+        tips: [
+          "Составляйте структурированную таблицу Скорость / Время / Расстояние.",
+          "Отрицательный корень отбрасывайте с фразой «x > 0 по смыслу задачи»."
+        ],
+        samplePractice: {
+          question: "Моторная лодка со скоростью 15 км/ч проплыла по реке со скоростью течения 3 км/ч по течению. Какова скорость лодки относительно берега (в км/ч)?",
+          answer: "18",
+          explanation: "15 + 3 = 18 км/ч."
+        }
+      },
+      {
+        id: 22,
+        num: 22,
+        title: "Кусочные функции и графики с параметром",
+        category: "algebra2",
+        categoryName: "Алгебра Ч.2 (20–22)",
+        points: 2,
+        isGeometry: false,
+        badge: "№22",
+        traps: [
+          "Выколотые точки графика: отсутствие незакрашенного кружочка на ОДЗ ведет к 0 баллов за всю задачу.",
+          "Обязательно наличие таблицы опорных точек для построения кривых."
+        ],
+        tips: [
+          "Четко проводите горизонтальные прямые y = m и анализируйте число точек пересечения.",
+          "Подписывайте оси Ox, Oy и масштабные единичные отрезки."
+        ],
+        samplePractice: {
+          question: "При каком значении m прямая y = m касается вершины параболы y = x^2 - 4x + 7?",
+          answer: "3",
+          explanation: "Вершина в x0 = 2, y(2) = 3. Касание при m = 3."
+        }
+      },
+
+      // --- ЧАСТЬ 2: ГЕОМЕТРИЯ (23-25) ПО 2 БАЛЛА ---
+      {
+        id: 23,
+        num: 23,
+        title: "Геометрическая задача на вычисление",
+        category: "geometry2",
+        categoryName: "Геометрия Ч.2 (23–25)",
+        points: 2,
+        isGeometry: true,
+        badge: "№23",
+        traps: [
+          "Подобие треугольников: обязательно указание признака подобия («по двум углам»).",
+          "Отношение площадей подобных фигур равно квадрату коэффициента подобия: S1/S2 = k^2."
+        ],
+        tips: [
+          "Ищите вертикальные углы и накрест лежащие при параллельных прямых.",
+          "Чертеж должен быть крупным и пропорциональным."
+        ],
+        samplePractice: {
+          question: "Коэффициент подобия треугольников k = 3. Площадь меньшего равна 5. Найдите площадь большего треугольника.",
+          answer: "45",
+          explanation: "S = 5 * 3^2 = 45."
+        }
+      },
+      {
+        id: 24,
+        num: 24,
+        title: "Геометрическая задача на доказательство",
+        category: "geometry2",
+        categoryName: "Геометрия Ч.2 (23–25)",
+        points: 2,
+        isGeometry: true,
+        badge: "№24",
+        traps: [
+          "Использование утверждения, которое еще только требуется доказать (логический круг).",
+          "Каждое утверждение обязано ссылаться на теорему, определение или свойство."
+        ],
+        tips: [
+          "Основные методы: равенство треугольников, подобие, свойства вписанного четырехугольника.",
+          "Завершайте запись фразой «что и требовалось доказать»."
+        ],
+        samplePractice: {
+          question: "Сумма противоположных углов четырехугольника равна 180°. Можно ли около него описать окружность? (1 - да, 0 - нет)",
+          answer: "1",
+          explanation: "Да (1) — критерий вписанного четырехугольника."
+        }
+      },
+      {
+        id: 25,
+        num: 25,
+        title: "Сложная олимпиадная геометрическая задача",
+        category: "geometry2",
+        categoryName: "Геометрия Ч.2 (23–25)",
+        points: 2,
+        isGeometry: true,
+        badge: "№25",
+        traps: [
+          "Сложнейшая задача ОГЭ (решают менее 2%).",
+          "Возможность существования двух вариантов геометрической конфигурации."
+        ],
+        tips: [
+          "Для получения высшей оценки «5» задача №25 НЕ является обязательной (для 5 нужно от 22 баллов).",
+          "Приступайте к №25 только при безупречном решении всех предшествующих номеров."
+        ],
+        samplePractice: {
+          question: "В трапеции ABCD диагонали пересекаются в O. Площади треугольников AOB и COD равны 9 и 16. Чему равно произведение площадей треугольников BOC и AOD?",
+          answer: "144",
+          explanation: "Произведение площадей оснований равно произведению боковых: 12 * 12 = 144."
+        }
+      }
+    ];
+
+    const PRESETS = [
+      { id: "min3", label: "Минимум на 3", hint: "8 баллов (6 алгебра + №18, 19)", taskIds: [1, 2, 6, 7, 9, 10, 18, 19], customPoints: {} },
+      { id: "confident4", label: "Уверенная 4", hint: "17 баллов (Часть 1 с гарантией)", taskIds: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 18, 19], customPoints: {} },
+      { id: "grade5_no25", label: "На 5 (без №25)", hint: "26 баллов (все задачи кроме №25)", taskIds: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24], customPoints: { 20: 2, 21: 2, 22: 2, 23: 2, 24: 1 } },
+      { id: "geometry_trap", label: "Ловушка геометрии", hint: "15 б. по алгебре, но 1 по геометрии -> Двойка!", taskIds: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 18], customPoints: {} },
+      { id: "all_part1", label: "Вся Часть 1", hint: "19 баллов из первой части", taskIds: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19], customPoints: {} },
+      { id: "reset", label: "Сбросить", hint: "Очистить все отметки", taskIds: [], customPoints: {} }
+    ];
+
+    const CATEGORIES = [
+      { id: "all", label: "Все 25" },
+      { id: "practice", label: "Практика (1–5)" },
+      { id: "algebra1", label: "Алгебра Ч.1 (6–14)" },
+      { id: "geometry1", label: "Геометрия Ч.1 (15–19)" },
+      { id: "algebra2", label: "Алгебра Ч.2 (20–22)" },
+      { id: "geometry2", label: "Геометрия Ч.2 (23–25)" }
+    ];
+
+    function calculateGrade(totalPoints, geometryPoints) {
+      const geometryFailed = geometryPoints < 2;
+
+      let grade = 2;
+      let status = "Не сдал";
+      let statusColorClass = "bg-red-500/15 text-red-400 border-red-500/30";
+      let description = "";
+
+      if (geometryFailed && totalPoints >= 8) {
+        grade = 2;
+        status = "Ловушка геометрии";
+        statusColorClass = "bg-amber-500/15 text-amber-400 border-amber-500/30";
+        description = `Набрано ${totalPoints} баллов, но по геометрии только ${geometryPoints} из 2 необходимых. По регламенту ФИПИ выставляется оценка 2! Решите хотя бы задания №18 и №19.`;
+        return { grade, status, statusColorClass, description, geometryFailed: true };
+      }
+
+      if (totalPoints <= 7) {
+        grade = 2;
+        status = "Не сдал";
+        statusColorClass = "bg-red-500/15 text-red-400 border-red-500/30";
+        description = "Порог сдачи экзамена (8 баллов, в т.ч. 2 по геометрии) не преодолен.";
+      } else if (totalPoints <= 14) {
+        grade = 3;
+        status = "Удовлетворительно";
+        statusColorClass = "bg-amber-500/15 text-amber-300 border-amber-500/30";
+        description = "Минимальный порог преодолен. Экзамен сдан.";
+      } else if (totalPoints <= 21) {
+        grade = 4;
+        status = "Хорошо";
+        statusColorClass = "bg-emerald-500/15 text-emerald-400 border-emerald-500/30";
+        description = "Уверенный результат для поступления в профильные классы.";
+      } else {
+        grade = 5;
+        status = "Отлично";
+        statusColorClass = "bg-purple-500/15 text-purple-400 border-purple-500/30";
+        description = "Высший балл ОГЭ по математике.";
+      }
+
+      return { grade, status, statusColorClass, description, geometryFailed: false };
+    }
+
+    const STATE = {
+      scores: {},
+      expandedTasks: new Set(),
+      activeCategory: 'all',
+      searchQuery: '',
+      practiceModal: { isOpen: false, taskId: null, userAnswer: '', checked: false, isCorrect: false }
+    };
+
+    const STORAGE_KEY = 'oge_math_storage_v3';
+
+    function loadFromStorage() {
+      try {
+        if (typeof window !== 'undefined' && window.localStorage) {
+          const saved = localStorage.getItem(STORAGE_KEY);
+          if (saved) {
+            const parsed = JSON.parse(saved);
+            STATE.scores = parsed.scores || {};
+          }
+        }
+      } catch (e) {}
+    }
+
+    function saveToStorage() {
+      try {
+        if (typeof window !== 'undefined' && window.localStorage) {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify({ scores: STATE.scores }));
+        }
+      } catch (e) {}
+    }
+
+    function calculateStats() {
+      let totalScore = 0;
+      let geometryScore = 0;
+
+      TASKS_DATA.forEach(task => {
+        const score = STATE.scores[task.id] || 0;
+        totalScore += score;
+        if (task.isGeometry) geometryScore += score;
+      });
+
+      const gradeResult = calculateGrade(totalScore, geometryScore);
+      return { totalScore, geometryScore, maxTotal: 31, maxGeometry: 11, gradeResult };
+    }
+
+    function applyPreset(presetId) {
+      const preset = PRESETS.find(p => p.id === presetId);
+      if (!preset) return;
+
+      const newScores = {};
+      TASKS_DATA.forEach(task => {
+        if (preset.taskIds.includes(task.id)) {
+          newScores[task.id] = (preset.customPoints && preset.customPoints[task.id] !== undefined)
+            ? preset.customPoints[task.id]
+            : task.points;
+        } else {
+          newScores[task.id] = 0;
+        }
+      });
+
+      STATE.scores = newScores;
+      saveToStorage();
+      renderApp();
+    }
+
+    function setTaskScore(taskId, score) {
+      STATE.scores[taskId] = score;
+      saveToStorage();
+      updateStatsUI();
+      updateTaskCardUI(taskId);
+    }
+
+    function toggleTaskPart1(taskId) {
+      const current = STATE.scores[taskId] || 0;
+      setTaskScore(taskId, current > 0 ? 0 : 1);
+    }
+
+    function toggleAccordion(taskId) {
+      if (STATE.expandedTasks.has(taskId)) {
+        STATE.expandedTasks.delete(taskId);
+      } else {
+        STATE.expandedTasks.add(taskId);
+      }
+      updateTaskAccordionUI(taskId);
+    }
+
+    function renderTabs() {
+      const container = document.getElementById('categoryTabs');
+      if (!container) return;
+
+      container.innerHTML = CATEGORIES.map(cat => {
+        const isActive = STATE.activeCategory === cat.id && !STATE.searchQuery;
+        return `
+          <button 
+            data-category="${cat.id}"
+            class="px-3.5 py-1.5 rounded-full text-xs font-medium transition-all whitespace-nowrap ${
+              isActive 
+                ? 'bg-blue-600 text-white font-semibold shadow-sm' 
+                : 'bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white border border-white/5'
+            }"
+          >
+            ${cat.label}
+          </button>
+        `;
+      }).join('');
+    }
+
+    function renderPresets() {
+      const container = document.getElementById('presetsList');
+      if (!container) return;
+
+      container.innerHTML = PRESETS.map(preset => {
+        return `
+          <button 
+            data-preset="${preset.id}"
+            title="${preset.hint}"
+            class="px-3 py-1 rounded-lg text-xs font-medium bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white border border-white/10 transition-all active:scale-95"
+          >
+            ${preset.label}
+          </button>
+        `;
+      }).join('');
+    }
+
+    function updateStatsUI() {
+      const stats = calculateStats();
+
+      // Первичный балл
+      const totalScoreEl = document.getElementById('statTotalScore');
+      const totalBarEl = document.getElementById('statTotalBar');
+      if (totalScoreEl) totalScoreEl.innerText = `${stats.totalScore} / ${stats.maxTotal}`;
+      if (totalBarEl) {
+        const pct = Math.min(100, Math.round((stats.totalScore / stats.maxTotal) * 100));
+        totalBarEl.style.width = `${pct}%`;
+      }
+
+      // Геометрия и шлюз безопасности
+      const geomScoreEl = document.getElementById('statGeomScore');
+      const geomBarEl = document.getElementById('statGeomBar');
+      const geomGateBadge = document.getElementById('geomGateBadge');
+      const geomGateBox = document.getElementById('geomGateBox');
+
+      if (geomScoreEl) geomScoreEl.innerText = `${stats.geometryScore} / ${stats.maxGeometry}`;
+      if (geomBarEl) {
+        const pct = Math.min(100, Math.round((stats.geometryScore / stats.maxGeometry) * 100));
+        geomBarEl.style.width = `${pct}%`;
+        geomBarEl.className = stats.geometryScore >= 2
+          ? 'h-full rounded-full transition-all duration-300 bg-emerald-500'
+          : 'h-full rounded-full transition-all duration-300 bg-amber-500';
+      }
+
+      if (geomGateBadge && geomGateBox) {
+        if (stats.geometryScore >= 2) {
+          geomGateBadge.className = 'text-[10px] px-1.5 py-0.5 rounded font-mono font-bold bg-emerald-950/80 text-emerald-300 border border-emerald-800/60';
+          geomGateBadge.innerText = 'Порог пройден';
+          geomGateBox.classList.remove('safety-gate-pulse', 'border-amber-500/50');
+        } else {
+          geomGateBadge.className = 'text-[10px] px-1.5 py-0.5 rounded font-mono font-bold bg-amber-950/80 text-amber-300 border border-amber-800/60';
+          geomGateBadge.innerText = `Нужно еще ${2 - stats.geometryScore} б.`;
+          geomGateBox.classList.add('safety-gate-pulse', 'border-amber-500/50');
+        }
+      }
+
+      // Оценка
+      const gradeDigit = document.getElementById('statGradeDigit');
+      const gradeStatus = document.getElementById('statGradeStatus');
+      const geomWarningBanner = document.getElementById('geomWarningBanner');
+      const geomWarningText = document.getElementById('geomWarningText');
+
+      if (gradeDigit) gradeDigit.innerText = stats.gradeResult.grade;
+      if (gradeStatus) {
+        gradeStatus.innerText = stats.gradeResult.status;
+        gradeStatus.className = `inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border ${stats.gradeResult.statusColorClass}`;
+      }
+
+      // Баннер ловушки геометрии
+      if (geomWarningBanner && geomWarningText) {
+        if (stats.gradeResult.geometryFailed) {
+          geomWarningBanner.classList.remove('hidden');
+          geomWarningText.innerHTML = `<strong>Сработала «Ловушка геометрии»:</strong> ${stats.gradeResult.description}`;
+        } else {
+          geomWarningBanner.classList.add('hidden');
+        }
+      }
+    }
+
+    function matchesSearch(task, query) {
+      if (!query) return true;
+      const q = query.toLowerCase().trim();
+      if (task.num.toString() === q || `№${task.num}` === q || `№0${task.num}` === q || `задание ${task.num}` === q) return true;
+      if (task.title.toLowerCase().includes(q)) return true;
+      if (task.categoryName.toLowerCase().includes(q)) return true;
+      if (task.traps && task.traps.some(t => t.toLowerCase().includes(q))) return true;
+      if (task.tips && task.tips.some(t => t.toLowerCase().includes(q))) return true;
+      if (task.samplePractice && task.samplePractice.question.toLowerCase().includes(q)) return true;
+      return false;
+    }
+
+    function renderTaskList() {
+      const container = document.getElementById('tasksContainer');
+      const searchStatusInfo = document.getElementById('searchStatusInfo');
+      const searchStatusText = document.getElementById('searchStatusText');
+      const clearSearchBtn = document.getElementById('clearSearchBtn');
+
+      if (!container) return;
+      const isSearching = !!STATE.searchQuery;
+
+      if (clearSearchBtn) {
+        if (isSearching) clearSearchBtn.classList.remove('hidden');
+        else clearSearchBtn.classList.add('hidden');
+      }
+
+      const filtered = TASKS_DATA.filter(task => {
+        if (isSearching) return matchesSearch(task, STATE.searchQuery);
+        if (STATE.activeCategory !== 'all' && task.category !== STATE.activeCategory) return false;
+        return true;
+      });
+
+      if (searchStatusInfo && searchStatusText) {
+        if (isSearching) {
+          searchStatusInfo.classList.remove('hidden');
+          searchStatusText.innerHTML = `По запросу <strong class="text-white">"${escapeHtml(STATE.searchQuery)}"</strong> найдено заданий: <strong>${filtered.length}</strong>`;
+        } else {
+          searchStatusInfo.classList.add('hidden');
+        }
+      }
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-12 text-slate-500 bg-white/[0.02] rounded-xl border border-white/5">
+            <div class="text-sm font-medium text-slate-300">Ничего не найдено</div>
+            <div class="text-xs text-slate-500 mt-1">Попробуйте ввести другой поисковый запрос</div>
+            <button id="emptyResetSearchBtn" class="mt-3 px-3 py-1 rounded-md text-xs bg-white/10 hover:bg-white/20 text-white transition-all font-medium">
+              Сбросить поиск
+            </button>
+          </div>
+        `;
+        const resetBtn = document.getElementById('emptyResetSearchBtn');
+        if (resetBtn) resetBtn.addEventListener('click', clearSearch);
+        return;
+      }
+
+      container.innerHTML = filtered.map(task => renderTaskCardHTML(task)).join('');
+    }
+
+    function escapeHtml(str) {
+      return (str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    function renderTaskCardHTML(task) {
+      const currentScore = STATE.scores[task.id] || 0;
+      const isPart2 = task.points === 2;
+      const isExpanded = STATE.expandedTasks.has(task.id);
+      const isSolved = currentScore > 0;
+
+      let scoreControlsHTML = '';
+      if (isPart2) {
+        scoreControlsHTML = `
+          <div class="flex items-center gap-0.5 bg-black/40 p-0.5 rounded-lg border border-white/10 no-accordion-trigger" title="Выберите балл">
+            <button data-task-id="${task.id}" data-point="0" class="point-selector-btn ${currentScore === 0 ? 'is-active' : ''}">0</button>
+            <button data-task-id="${task.id}" data-point="1" class="point-selector-btn ${currentScore === 1 ? 'is-active' : ''}">1</button>
+            <button data-task-id="${task.id}" data-point="2" class="point-selector-btn ${currentScore === 2 ? 'is-active' : ''}">2</button>
+          </div>
+        `;
+      } else {
+        scoreControlsHTML = `
+          <label class="flex items-center cursor-pointer no-accordion-trigger p-1" title="Отметить решенным (1 балл)">
+            <input 
+              type="checkbox" 
+              data-task-id="${task.id}"
+              class="apple-checkbox task-checkbox" 
+              ${currentScore > 0 ? 'checked' : ''}
+            />
+          </label>
+        `;
+      }
+
+      return `
+        <div id="task-card-${task.id}" class="task-item overflow-hidden ${isSolved ? 'is-selected' : ''} ${task.isGeometry ? 'is-geom' : ''}">
+          
+          <div data-task-id="${task.id}" class="task-header p-3 sm:p-3.5 flex items-center justify-between gap-3 cursor-pointer select-none">
+            
+            <div class="flex items-center gap-3 min-w-0 flex-1">
+              ${scoreControlsHTML}
+
+              <div class="flex items-center gap-2.5 min-w-0 flex-1">
+                <span class="px-2 py-0.5 rounded text-[11px] font-mono font-medium bg-white/5 text-slate-300 border border-white/10 flex-shrink-0">
+                  ${task.badge}
+                </span>
+                <span class="text-xs sm:text-sm font-medium text-slate-200 truncate">
+                  ${task.title}
+                </span>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-3 flex-shrink-0">
+              ${task.isGeometry ? '<span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-950/60 text-emerald-400 border border-emerald-800/40 hidden sm:inline-block">геометрия</span>' : ''}
+              <span class="num-tabular text-xs text-slate-400 bg-white/5 px-2 py-0.5 rounded border border-white/5">
+                ${isPart2 ? `${currentScore}/2 б.` : `${task.points} б.`}
+              </span>
+
+              <!-- Кнопка решить -->
+              <button 
+                data-task-id="${task.id}"
+                class="btn-practice no-accordion-trigger px-2.5 py-1 rounded-md text-xs font-medium bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/30 transition-all flex items-center gap-1 active:scale-95"
+              >
+                Решить
+              </button>
+
+              <!-- Стрелка раскрытия -->
+              <svg class="w-4 h-4 text-slate-400 transition-transform duration-200 ${isExpanded ? 'rotate-180 text-blue-400' : ''}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+
+          </div>
+
+          <!-- Раскрывающаяся часть аккордеона -->
+          <div id="accordion-${task.id}" class="accordion-body ${isExpanded ? 'is-open' : ''}">
+            <div class="accordion-inner px-4 pb-4 pt-2 border-t border-white/5 bg-black/20 text-xs">
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-1">
+                
+                <!-- Ловушки -->
+                <div class="bg-red-950/15 border border-red-900/30 rounded-xl p-3">
+                  <div class="font-semibold text-red-400 text-xs mb-1.5 flex items-center gap-1.5">
+                    <span class="w-1.5 h-1.5 rounded-full bg-red-400"></span>
+                    <span>Типичные ловушки ФИПИ</span>
+                  </div>
+                  <ul class="text-slate-300 space-y-1.5 list-disc list-inside leading-relaxed text-[11px] sm:text-xs">
+                    ${task.traps.map(trap => `<li><span>${trap}</span></li>`).join('')}
+                  </ul>
+                </div>
+
+                <!-- Лайфхаки и правила -->
+                <div class="bg-emerald-950/15 border border-emerald-900/30 rounded-xl p-3">
+                  <div class="font-semibold text-emerald-400 text-xs mb-1.5 flex items-center gap-1.5">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                    <span>Формулы и метод решения</span>
+                  </div>
+                  <ul class="text-slate-300 space-y-1.5 list-disc list-inside leading-relaxed text-[11px] sm:text-xs">
+                    ${task.tips.map(tip => `<li><span>${tip}</span></li>`).join('')}
+                  </ul>
+                </div>
+
+              </div>
+
+              <!-- Мини-практика внутри карточки -->
+              <div class="mt-3 pt-2.5 border-t border-white/5 flex flex-wrap items-center justify-between gap-2">
+                <span class="text-slate-400 text-[11px] truncate max-w-sm">
+                  Пример: ${task.samplePractice.question.slice(0, 65)}...
+                </span>
+                <button data-task-id="${task.id}" class="btn-practice text-[11px] font-medium text-blue-400 hover:text-blue-300 underline">
+                  Решить прямо сейчас →
+                </button>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      `;
+    }
+
+    function updateTaskCardUI(taskId) {
+      const card = document.getElementById(`task-card-${taskId}`);
+      if (!card) return;
+
+      const currentScore = STATE.scores[taskId] || 0;
+      const isSolved = currentScore > 0;
+
+      if (isSolved) card.classList.add('is-selected');
+      else card.classList.remove('is-selected');
+
+      const pointBtns = card.querySelectorAll('.point-selector-btn');
+      pointBtns.forEach(btn => {
+        const pt = parseInt(btn.dataset.point, 10);
+        if (pt === currentScore) btn.classList.add('is-active');
+        else btn.classList.remove('is-active');
+      });
+
+      const cb = card.querySelector('.task-checkbox');
+      if (cb) cb.checked = isSolved;
+    }
+
+    function updateTaskAccordionUI(taskId) {
+      const accordion = document.getElementById(`accordion-${taskId}`);
+      const header = document.querySelector(`.task-header[data-task-id="${taskId}"]`);
+      if (!accordion || !header) return;
+
+      const arrow = header.querySelector('svg');
+      const isExpanded = STATE.expandedTasks.has(taskId);
+
+      if (isExpanded) {
+        accordion.classList.add('is-open');
+        if (arrow) arrow.classList.add('rotate-180', 'text-blue-400');
+      } else {
+        accordion.classList.remove('is-open');
+        if (arrow) arrow.classList.remove('rotate-180', 'text-blue-400');
+      }
+    }
+
+    function openPracticeModal(taskId) {
+      const task = TASKS_DATA.find(t => t.id === taskId);
+      if (!task) return;
+
+      STATE.practiceModal = { isOpen: true, taskId: task.id, userAnswer: '', checked: false, isCorrect: false };
+
+      const modal = document.getElementById('practiceModal');
+      const modalTitle = document.getElementById('modalTaskTitle');
+      const modalBadge = document.getElementById('modalTaskBadge');
+      const modalQuestion = document.getElementById('modalQuestionText');
+      const modalInput = document.getElementById('modalAnswerInput');
+      const modalResult = document.getElementById('modalResultBlock');
+
+      if (modalTitle) modalTitle.innerText = task.title;
+      if (modalBadge) modalBadge.innerText = task.badge;
+      if (modalQuestion) modalQuestion.innerText = task.samplePractice.question;
+      if (modalInput) {
+        modalInput.value = '';
+        modalInput.disabled = false;
+        setTimeout(() => modalInput.focus(), 50);
+      }
+      if (modalResult) {
+        modalResult.classList.add('hidden');
+        modalResult.innerHTML = '';
+      }
+
+      const submitBtn = document.getElementById('modalSubmitBtn');
+      if (submitBtn) submitBtn.classList.remove('hidden');
+
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function closePracticeModal() {
+      const modal = document.getElementById('practiceModal');
+      if (modal) modal.classList.add('hidden');
+      STATE.practiceModal.isOpen = false;
+    }
+
+    function handlePracticeAnswer() {
+      const task = TASKS_DATA.find(t => t.id === STATE.practiceModal.taskId);
+      const input = document.getElementById('modalAnswerInput');
+      const modalResult = document.getElementById('modalResultBlock');
+      const submitBtn = document.getElementById('modalSubmitBtn');
+      if (!task || !input || !modalResult) return;
+
+      const rawUser = input.value.trim().toLowerCase().replace(',', '.');
+      const rawCorrect = task.samplePractice.answer.trim().toLowerCase().replace(',', '.');
+
+      const isCorrect = rawUser === rawCorrect;
+      STATE.practiceModal.checked = true;
+      STATE.practiceModal.isCorrect = isCorrect;
+
+      modalResult.classList.remove('hidden');
+      if (isCorrect) {
+        setTaskScore(task.id, task.points);
+
+        modalResult.innerHTML = `
+          <div class="bg-emerald-950/30 border border-emerald-500/40 rounded-xl p-3.5 text-emerald-200">
+            <div class="font-bold text-emerald-400 text-sm mb-1">
+              Верно (+${task.points} ${task.points === 1 ? 'балл' : 'балла'})
+            </div>
+            <div class="text-xs text-slate-300 mt-1 leading-relaxed">
+              <strong>Разбор:</strong> ${task.samplePractice.explanation}
+            </div>
+          </div>
+        `;
+      } else {
+        modalResult.innerHTML = `
+          <div class="bg-red-950/30 border border-red-500/40 rounded-xl p-3.5 text-red-200">
+            <div class="font-bold text-red-400 text-sm mb-1">
+              Неверно
+            </div>
+            <div class="text-xs text-slate-300 mt-1">
+              Ваш ответ: <span class="font-mono text-red-300">${input.value}</span>. Правильный ответ: <span class="font-mono text-emerald-400 font-semibold">${task.samplePractice.answer}</span>
+            </div>
+            <div class="text-xs text-slate-300 mt-2 pt-2 border-t border-red-900/40 leading-relaxed">
+              <strong>Разбор:</strong> ${task.samplePractice.explanation}
+            </div>
+          </div>
+        `;
+      }
+
+      if (submitBtn) submitBtn.classList.add('hidden');
+    }
+
+    function clearSearch() {
+      STATE.searchQuery = '';
+      const searchInput = document.getElementById('taskSearchInput');
+      if (searchInput) searchInput.value = '';
+      renderTabs();
+      renderTaskList();
+    }
+
+    function setupEventListeners() {
+      const categoryContainer = document.getElementById('categoryTabs');
+      if (categoryContainer) {
+        categoryContainer.addEventListener('click', (e) => {
+          const btn = e.target.closest('[data-category]');
+          if (btn) {
+            STATE.activeCategory = btn.dataset.category;
+            STATE.searchQuery = '';
+            const searchInput = document.getElementById('taskSearchInput');
+            if (searchInput) searchInput.value = '';
+            renderTabs();
+            renderTaskList();
+          }
+        });
+      }
+
+      const presetsContainer = document.getElementById('presetsList');
+      if (presetsContainer) {
+        presetsContainer.addEventListener('click', (e) => {
+          const btn = e.target.closest('[data-preset]');
+          if (btn) applyPreset(btn.dataset.preset);
+        });
+      }
+
+      const searchInput = document.getElementById('taskSearchInput');
+      if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+          STATE.searchQuery = e.target.value.trim();
+          renderTaskList();
+        });
+      }
+
+      const clearSearchBtn = document.getElementById('clearSearchBtn');
+      if (clearSearchBtn) clearSearchBtn.addEventListener('click', clearSearch);
+
+      const resetSearchLink = document.getElementById('resetSearchLink');
+      if (resetSearchLink) resetSearchLink.addEventListener('click', clearSearch);
+
+      const tasksContainer = document.getElementById('tasksContainer');
+      if (tasksContainer) {
+        tasksContainer.addEventListener('click', (e) => {
+          const checkbox = e.target.closest('.task-checkbox');
+          if (checkbox) {
+            const taskId = parseInt(checkbox.dataset.taskId, 10);
+            toggleTaskPart1(taskId);
+            return;
+          }
+
+          const pointBtn = e.target.closest('.point-selector-btn');
+          if (pointBtn) {
+            const taskId = parseInt(pointBtn.dataset.taskId, 10);
+            const score = parseInt(pointBtn.dataset.point, 10);
+            setTaskScore(taskId, score);
+            return;
+          }
+
+          const practiceBtn = e.target.closest('.btn-practice');
+          if (practiceBtn) {
+            e.stopPropagation();
+            const taskId = parseInt(practiceBtn.dataset.taskId, 10);
+            openPracticeModal(taskId);
+            return;
+          }
+
+          const header = e.target.closest('.task-header');
+          if (header && !e.target.closest('.no-accordion-trigger')) {
+            const taskId = parseInt(header.dataset.taskId, 10);
+            toggleAccordion(taskId);
+          }
+        });
+      }
+
+      const quickTestBtn = document.getElementById('quickTestBtn');
+      if (quickTestBtn) {
+        quickTestBtn.addEventListener('click', () => {
+          const unsolved = TASKS_DATA.filter(t => !STATE.scores[t.id]);
+          const target = unsolved.length > 0 ? unsolved[0] : TASKS_DATA[0];
+          openPracticeModal(target.id);
+        });
+      }
+
+      const modalClose = document.getElementById('modalClose');
+      const modalOverlay = document.getElementById('modalOverlay');
+      if (modalClose) modalClose.addEventListener('click', closePracticeModal);
+      if (modalOverlay) modalOverlay.addEventListener('click', (e) => {
+        if (e.target === modalOverlay) closePracticeModal();
+      });
+
+      const modalForm = document.getElementById('modalPracticeForm');
+      if (modalForm) {
+        modalForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          handlePracticeAnswer();
+        });
+      }
+
+      const prevTaskBtn = document.getElementById('modalPrevTask');
+      const nextTaskBtn = document.getElementById('modalNextTask');
+      if (prevTaskBtn) {
+        prevTaskBtn.addEventListener('click', () => {
+          const current = STATE.practiceModal.taskId;
+          openPracticeModal(current > 1 ? current - 1 : 25);
+        });
+      }
+      if (nextTaskBtn) {
+        nextTaskBtn.addEventListener('click', () => {
+          const current = STATE.practiceModal.taskId;
+          openPracticeModal(current < 25 ? current + 1 : 1);
+        });
+      }
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && STATE.practiceModal.isOpen) closePracticeModal();
+      });
+    }
+
+    function renderApp() {
+      renderTabs();
+      renderPresets();
+      updateStatsUI();
+      renderTaskList();
+    }
+
+    function initApp() {
+      loadFromStorage();
+      setupEventListeners();
+      if (Object.keys(STATE.scores).length === 0) {
+        applyPreset('confident4');
+      } else {
+        renderApp();
+      }
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initApp);
+    } else {
+      initApp();
+    }
+  </script>
+</body>
+</html>
